@@ -167,6 +167,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfed0986d3e91434aabbea153b6499df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dailyNotificationTitle: Hey. What's up !!!
+  dailyNotificationText: Come back. There are new levels !!!
+  fireTime: 86400
+  dailyRewardNotificationTitle: Hey. What's up !!!
+  dailyRewardNotificationText: Your reward is ready. Claim it now !!!
 --- !u!1 &377721630
 GameObject:
   m_ObjectHideFlags: 0
@@ -781,7 +786,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53f043939c2e10b428b9741d62e56d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bannerAdType: 2
+  bannerAdType: 1
   delayTimeWhenShowingBannerAd: 0.5
   listInterstitialAdConfiguration:
   - ingameStateWhenShowingAd: 3
