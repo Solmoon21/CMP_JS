@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -104,7 +104,7 @@ namespace ClawbearGames
 
             // Create a 320x50 banner at the top of the screen.
 #if UNITY_ANDROID
-            bannerView = new BannerView(androidBannerID, AdSize.SmartBanner, bannerPosition);
+            bannerView = new BannerView(androidBannerID, AdSize.Banner, bannerPosition);
 #elif UNITY_IOS
             bannerView = new BannerView(iOSBannerID, AdSize.SmartBanner, bannerPosition);
 #endif
@@ -137,7 +137,7 @@ namespace ClawbearGames
             if (!isInitializeCompleted)
                 return false;
 
-            if (interstitialAd.IsLoaded())
+            if (interstitialAd.CanShowAd())
             {
                 return true;
             }
@@ -171,14 +171,31 @@ namespace ClawbearGames
         {
             yield return new WaitForSeconds(delay);
 #if CB_ADMOB
-            if (interstitialAd.IsLoaded())
+            if (interstitialAd.CanShowAd())
             {
                 interstitialAd.Show();
             }
             else
             {
-                if (isInitializeCompleted)
-                    interstitialAd.LoadAd(new AdRequest.Builder().Build());
+
+                AdRequest request = new AdRequest.Builder().Build();
+                if (!isInitializeCompleted)
+                    yield return null;
+                InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+                    if (loadAdError != null)
+                    {
+                        return;
+                    }
+                    else
+                    if (ad == null)
+                    {
+                        return;
+                    }
+
+                    interstitialAd = ad;
+                });
+                // if (isInitializeCompleted)
+                //     interstitialAd.LoadAd(new AdRequest.Builder().Build());
             }
 #endif
         }
@@ -196,18 +213,50 @@ namespace ClawbearGames
                 interstitialAd.Destroy();
             }
 #if UNITY_ANDROID
-            interstitialAd = new InterstitialAd(androidInterstitialAdID);
+            //interstitialAd = new InterstitialAd(androidInterstitialAdID);
+            AdRequest request = new AdRequest.Builder().Build();
+            if (!isInitializeCompleted)
+                return;
+            InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+                if (loadAdError != null)
+                {
+                    return;
+                }
+                else
+                if (ad == null)
+                {
+                    return;
+                }
+                interstitialAd = ad;
+            });
 #elif UNITY_IOS
                 interstitialAd = new InterstitialAd(iOSInterstitialAdID);
 #endif
-            interstitialAd.OnAdClosed += (sender, args) =>
+            interstitialAd.OnAdFullScreenContentClosed += HandleOnAdFullScreenContentClosed;
+    }
+
+    public void HandleOnAdFullScreenContentClosed()
+    {
+        MobileAdsEventExecutor.ExecuteInUpdate(() =>
+        {
+            LoadInterstitialAd();
+        });
+
+        AdRequest request = new AdRequest.Builder().Build();
+        if (!isInitializeCompleted)
+            return;
+        InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+            if (loadAdError != null)
             {
-                MobileAdsEventExecutor.ExecuteInUpdate(() =>
-                {
-                    LoadInterstitialAd();
-                });
-            };
-            interstitialAd.LoadAd(new AdRequest.Builder().Build());
+                return;
+            }
+            else
+            if (ad == null)
+            {
+                return;
+            }
+            interstitialAd = ad;
+        });
     }
 #endif
 
@@ -232,7 +281,7 @@ namespace ClawbearGames
             if (!isInitializeCompleted)
                 return false;
 
-            if (rewardedAd.IsLoaded())
+            if (rewardedAd.CanShowAd())
             {
                 return true;
             }
@@ -265,9 +314,11 @@ namespace ClawbearGames
         {
             yield return new WaitForSecondsRealtime(delay);
 #if CB_ADMOB
-            if (rewardedAd.IsLoaded())
+            if (rewardedAd.CanShowAd())
             {
-                rewardedAd.Show();
+                rewardedAd.Show((Reward reward)=>{
+                    Debug.Log("Rewared ads showing");
+                });
             }
             else
             {
@@ -285,13 +336,30 @@ namespace ClawbearGames
         {
             //Create the singleton rewardedAd.
 #if UNITY_ANDROID
-            rewardedAd = new RewardedAd(androidRewardedAdID);
+            //rewardedAd = new RewardedAd(androidRewardedAdID);
+            AdRequest request = new AdRequest.Builder().Build();
+            if (!isInitializeCompleted)
+                return;
+            RewardedAd.Load(androidRewardedAdID, request, (RewardedAd ad,LoadAdError loadAdError)=>{
+                if (loadAdError != null)
+                {
+                    return;
+                }
+                else
+                if (ad == null)
+                {
+                    return;
+                }
+                rewardedAd = ad;
+            });
 #elif UNITY_IOS
             rewardedAd = new RewardedAd(iOSRewardedAdID);
 #endif
             //Register events for rewardedAd
-            rewardedAd.OnAdClosed += (sender, args) =>
-            {
+            
+
+
+            rewardedAd.OnAdFullScreenContentClosed += ()=>{
                 MobileAdsEventExecutor.ExecuteInUpdate(() =>
                 {
                     //User closed the video
@@ -300,13 +368,42 @@ namespace ClawbearGames
                     LoadRewardedAd();
                 });
             };
-            rewardedAd.OnUserEarnedReward += (sender, args) =>
-            {
-                //User watched the whole video
+            // rewardedAd.OnAdClosed += (sender, args) =>
+            // {
+            //     MobileAdsEventExecutor.ExecuteInUpdate(() =>
+            //     {
+            //         //User closed the video
+            //         ServicesManager.Instance.AdManager.OnRewardedVideoClosed(isCompletedRewardedAd);
+            //         isCompletedRewardedAd = false;
+            //         LoadRewardedAd();
+            //     });
+            // };
+
+            rewardedAd.OnAdPaid += (AdValue adValue)=>{
                 isCompletedRewardedAd = true;
             };
 
-            rewardedAd.LoadAd(new AdRequest.Builder().Build());
+            //rewardedAd.OnUserEarnedReward += (sender, args) =>
+            //{
+            //    //User watched the whole video
+            //    isCompletedRewardedAd = true;
+            //};
+
+            AdRequest request1 = new AdRequest.Builder().Build();
+            if (!isInitializeCompleted)
+                return;
+            RewardedAd.Load(androidRewardedAdID, request1, (RewardedAd ad,LoadAdError loadAdError)=>{
+                if (loadAdError != null)
+                {
+                    return;
+                }
+                else
+                if (ad == null)
+                {
+                    return;
+                }
+                rewardedAd = ad;
+            });
     }
 #endif
     }
