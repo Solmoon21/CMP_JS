@@ -775,7 +775,7 @@ PlayerSettings:
   webGLDecompressionFallback: 0
   webGLPowerPreference: 2
   scriptingDefineSymbols:
-    Android: 
+    Android: CB_ADMOB
     iPhone: 
   additionalCompilerArguments: {}
   platformArchitecture: {}

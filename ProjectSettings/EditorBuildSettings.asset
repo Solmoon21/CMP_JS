@@ -17,4 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Jumpy_Sky/Scenes/Character.unity
     guid: bd160518da57fea4fb5aceaf4848010c
-  m_configObjects: {}
+  m_configObjects:
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 376c32df015628245ba4b14ff6243585,
+      type: 2}
+    com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000,
+      guid: ec10cf6fecac3db4595dde48af737a13, type: 2}
