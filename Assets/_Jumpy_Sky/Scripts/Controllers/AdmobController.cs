@@ -48,7 +48,12 @@ namespace ClawbearGames
 #endif
 
 
-
+        private AdRequest CreateAdRequest(string keyword)
+        {
+            return new AdRequest.Builder()
+                .AddKeyword(keyword)
+                .Build();
+        }
 
 
 
@@ -178,10 +183,9 @@ namespace ClawbearGames
             else
             {
 
-                AdRequest request = new AdRequest.Builder().Build();
                 if (!isInitializeCompleted)
                     yield return null;
-                InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+                InterstitialAd.Load(androidInterstitialAdID, CreateAdRequest("Interstitial"), (InterstitialAd ad, LoadAdError loadAdError)=>{
                     if (loadAdError != null)
                     {
                         return;
@@ -214,10 +218,9 @@ namespace ClawbearGames
             }
 #if UNITY_ANDROID
             //interstitialAd = new InterstitialAd(androidInterstitialAdID);
-            AdRequest request = new AdRequest.Builder().Build();
             if (!isInitializeCompleted)
                 return;
-            InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+            InterstitialAd.Load(androidInterstitialAdID, CreateAdRequest("Interstitial"), (InterstitialAd ad, LoadAdError loadAdError)=>{
                 if (loadAdError != null)
                 {
                     return;
@@ -241,11 +244,9 @@ namespace ClawbearGames
         {
             LoadInterstitialAd();
         });
-
-        AdRequest request = new AdRequest.Builder().Build();
         if (!isInitializeCompleted)
             return;
-        InterstitialAd.Load(androidInterstitialAdID, request, (InterstitialAd ad, LoadAdError loadAdError)=>{
+        InterstitialAd.Load(androidInterstitialAdID, CreateAdRequest("Interstitial"), (InterstitialAd ad, LoadAdError loadAdError)=>{
             if (loadAdError != null)
             {
                 return;
@@ -337,10 +338,9 @@ namespace ClawbearGames
             //Create the singleton rewardedAd.
 #if UNITY_ANDROID
             //rewardedAd = new RewardedAd(androidRewardedAdID);
-            AdRequest request = new AdRequest.Builder().Build();
             if (!isInitializeCompleted)
                 return;
-            RewardedAd.Load(androidRewardedAdID, request, (RewardedAd ad,LoadAdError loadAdError)=>{
+            RewardedAd.Load(androidRewardedAdID, CreateAdRequest("Reward"), (RewardedAd ad,LoadAdError loadAdError)=>{
                 if (loadAdError != null)
                 {
                     return;
@@ -389,10 +389,9 @@ namespace ClawbearGames
             //    isCompletedRewardedAd = true;
             //};
 
-            AdRequest request1 = new AdRequest.Builder().Build();
             if (!isInitializeCompleted)
                 return;
-            RewardedAd.Load(androidRewardedAdID, request1, (RewardedAd ad,LoadAdError loadAdError)=>{
+            RewardedAd.Load(androidRewardedAdID, CreateAdRequest("Reward"), (RewardedAd ad,LoadAdError loadAdError)=>{
                 if (loadAdError != null)
                 {
                     return;
